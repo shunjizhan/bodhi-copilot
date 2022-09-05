@@ -1,25 +1,28 @@
-# The manifest for the "rpc-adapter-mandala" service.
+# The manifest for the "mandala-rpc-ws" service.
 # Read the full specification for the "Load Balanced Web Service" type at:
 #  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
 
 # Your service name will be used in naming your resources like log groups, ECS services, etc.
-name: rpc-adapter-mandala
+name: rpc-adapter-mandala-ws
 type: Load Balanced Web Service
 
 # Distribute traffic to your service.
 http:
   # Requests to this path will be forwarded to your service.
   # To match all requests you can use the "/" path.
-  path: 'http'
+  path: 'ws'
   # You can specify a custom health check path. The default is "/".
-  # healthcheck: false
+  healthcheck:
+    path: '/'
+    port: 8545
+    success_codes: '200'
 
 # Configuration for your containers and service.
 image:
   # Docker build arguments. For additional overrides: https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#image-build
   build: Dockerfile
   # Port exposed through your container to route traffic to it.
-  port: 8545
+  port: 3331
 
 cpu: 256       # Number of CPU units for the task.
 memory: 512    # Amount of memory in MiB used by the task.
@@ -27,6 +30,7 @@ count: 1       # Number of tasks that should be running in your service.
 exec: true     # Enable running commands in your container.
 
 # Optional fields for more advanced use-cases.
+#
 variables:                    # Pass environment variables as key value pairs.
   ENDPOINT_URL: wss://acala-mandala.api.onfinality.io/public-ws
   SUBQL_URL: https://api.subquery.network/sq/AcalaNetwork/evm-mandala
@@ -40,3 +44,7 @@ variables:                    # Pass environment variables as key value pairs.
 #    count: 2               # Number of tasks to run for the "test" environment.
 #    deployment:            # The deployment strategy for the "test" environment.
 #       rolling: 'recreate' # Stops existing tasks before new ones are started for faster deployments.
+
+# taskdef_overrides:
+#   - path: "ContainerDefinitions[0].loadBalancers[-].ContainerPort"
+#     value: 2056
