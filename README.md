@@ -19,6 +19,17 @@ will create `bodhi-test-rpc-adapter-mandala-http` stack
 the public url can be found in `bodhi-test.Outputs.PublicLoadBalancerDNSName`
 
 
+## postgres
+`copilot svc init --name postgres --svc-type "Backend Service" --port 5432 --dockerfile postgres.Dockerfile`
+
+```
+aws ssm put-parameter \
+--name /bodhi/test/POSTGRES_PASSWORD \
+--value postgres \
+--type SecureString \
+--tags Key=copilot-environment,Value=test Key=copilot-application,Value=bodhi
+```
+
 ## issue
 https://github.com/aws/copilot-cli/issues/1783#issuecomment-1078511188
 
