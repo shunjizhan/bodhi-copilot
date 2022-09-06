@@ -41,7 +41,7 @@ entrypoint: [
   /sbin/tini,
   --,
   /usr/local/lib/node_modules/@subql/query/bin/run,
-  --name=acala_evm,     # TODO: change 
+  --name=evm-mandala,
   --playground,
   --indexer=http://subql-node.test.bodhi.local:3000,
 ]

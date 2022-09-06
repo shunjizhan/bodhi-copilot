@@ -1,0 +1,41 @@
+name: subql-node-mandala
+type: Backend Service
+
+image:
+  build: indexer.Dockerfile
+  port: 3000
+
+cpu: 1024
+memory: 2048
+count: 1
+exec: true
+
+variables:
+  DB_USER: postgres
+  DB_DATABASE: postgres
+  DB_HOST: postgres.test.bodhi.local
+  DB_PORT: 5432
+
+secrets:
+  DB_PASS: /bodhi/dev/POSTGRES_PASSWORD
+
+# there doesn't seem to be a way to only pass args
+# so override the whole entry point
+entrypoint: [
+  "/sbin/tini",
+  "--",
+  "/usr/local/lib/node_modules/@subql/node/bin/run",
+  "-f=/app/project-mandala.yaml",
+  "--network-endpoint=wss://mandala-tc7-rpcnode.aca-dev.network/ws",
+  "--db-schema=evm-mandala",
+  "--log-level=debug",
+  "--batch-size=30",
+  "--unsafe",
+]
+
+# You can override any of the values defined above by environment.
+environments:
+ test:
+   count: 1               # Number of tasks to run for the "test" environment.
+   deployment:            # The deployment strategy for the "test" environment.
+      rolling: 'recreate' # Stops existing tasks before new ones are started for faster deployments.
