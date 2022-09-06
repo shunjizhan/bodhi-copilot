@@ -1,9 +1,9 @@
-# The manifest for the "rpc-adapter-mandala" service.
+# The manifest for the "eth-rpc-mandala" service.
 # Read the full specification for the "Load Balanced Web Service" type at:
 #  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
 
 # Your service name will be used in naming your resources like log groups, ECS services, etc.
-name: rpc-adapter-mandala-http
+name: eth-rpc-mandala
 type: Load Balanced Web Service
 
 # Distribute traffic to your service.

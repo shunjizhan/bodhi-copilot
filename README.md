@@ -30,12 +30,22 @@ aws ssm put-parameter \
 --tags Key=copilot-environment,Value=test Key=copilot-application,Value=bodhi
 ```
 
+`copilot svc deploy --name postgres --env test`
+`cop svc show postgres`  this can found the internal url `postgres.test.bodhi.local:5432`
+
 ## issue
 https://github.com/aws/copilot-cli/issues/1783#issuecomment-1078511188
 
 
 ## TODO
-- expose multiple port https://docs.aws.amazon.com/AmazonECS/latest/developerguide/register-multiple-targetgroups.html
+- expose multiple port https://docs.aws.amazon.com/AmazonECS/latest/developerguide/register-multiple-targetgroups.html, might just need to configure ALB?
 - enable https
 - domain name
 - pipeline
+- diable health check
+```
+healthcheck:
+command: ["CMD-SHELL", "echo \"dummy health check\""]
+interval: 9999999s
+```
+- incease CPU and memory
