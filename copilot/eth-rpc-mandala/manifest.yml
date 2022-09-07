@@ -1,31 +1,30 @@
 name: eth-rpc-mandala
 type: Load Balanced Web Service
 
-# Distribute traffic to your service.
-http:
-  # Requests to this path will be forwarded to your service.
-  # To match all requests you can use the "/" path.
-  path: 'http'
-  healthcheck:
-    command: ["CMD-SHELL", "echo \"dummy health check\""]
-    interval: 300s
-
+# ---------- configs ---------- #
 image:
   build: rpc.Dockerfile
   port: 8545
 
-cpu: 1024
-memory: 2048
-count: 2
-exec: true
-
-variables:                    # environment variables
-  ENDPOINT_URL: wss://mandala-tc7-rpcnode.aca-dev.network/ws
-  # SUBQL_URL: http://subql-query-mandala.test.bodhi.local:3001
-  SUBQL_URL: https://api.subquery.network/sq/AcalaNetwork/evm-mandala
+http:
+  path: 'http'
+  healthcheck:
+    command: ["CMD-SHELL", "exit 0"]
+    interval: 300s
 
 deployment:
-  rolling: 'recreate'       # Stops existing tasks before new ones are started for faster deployments.
+  rolling: 'recreate'
+
+cpu: 1024
+memory: 2048
+count: 3
+exec: true
+
+# ---------- env and variables ---------- #
+variables:
+  ENDPOINT_URL: wss://mandala-tc7-rpcnode.aca-dev.network/ws
+  SUBQL_URL: http://subql-query-mandala.dev.bodhim.local:3001
+  # SUBQL_URL: https://api.subquery.network/sq/AcalaNetwork/evm-mandala
 
 tags:
   project: bodhi-mandala

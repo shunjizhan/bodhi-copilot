@@ -1,6 +1,7 @@
 name: postgres-mandala
 type: Backend Service
 
+# ---------- configs ---------- #
 image:
   build: postgres.Dockerfile
   port: 5432
@@ -10,6 +11,7 @@ memory: 2048
 count: 1
 exec: true
 
+# ---------- env and variables ---------- #
 variables:
   POSTGRES_USER: postgres
 

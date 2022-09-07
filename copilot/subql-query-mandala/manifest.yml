@@ -1,41 +1,35 @@
-# The manifest for the "subql-query-mandala" service.
-# Read the full specification for the "Load Balanced Web Service" type at:
-#  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
-
-# Your service name will be used in naming your resources like log groups, ECS services, etc.
 name: subql-query-mandala
 type: Load Balanced Web Service
 
-# Distribute traffic to your service.
-http:
-  # Requests to this path will be forwarded to your service.
-  # To match all requests you can use the "/" path.
-  path: '/'
-  healthcheck:
-    command: ["CMD-SHELL", "echo \"dummy health check\""]
-    interval: 300s
-
+# ---------- configs ---------- #
 image:
-  # Docker build arguments.
-  # For additional overrides: https://aws.github.io/copilot-cli/docs/manifest/rd-web-service/#image-build
   build: graphql.Dockerfile
-  # Port exposed through your container to route traffic to it.
   port: 3001
 
-cpu: 512
-memory: 1024
-count: 2
+http:
+  path: '/'
+  healthcheck:
+    command: ["CMD-SHELL", "exit 0"]
+    interval: 300s
+
+cpu: 1024
+memory: 2048
+count: 1
 exec: true
 
-variables:                    # Pass environment variables as key value pairs.
+deployment:
+  rolling: 'recreate'       # Stops existing tasks before new ones are started for faster deployments.  TODO: can use for prod?
+
+# ---------- env and variables ---------- #
+variables:
   DB_USER: postgres
   DB_DATABASE: postgres
-  DB_HOST: postgres.test.bodhi.local
+  DB_HOST: postgres-mandala.dev.bodhim.local
   DB_PORT: 5432
   PORT: 3001
 
-secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
-  DB_PASS: /bodhi/test/POSTGRES_PASSWORD
+secrets:
+  DB_PASS: /bodhi/dev/POSTGRES_PASSWORD
 
 entrypoint: [
   /sbin/tini,
@@ -43,18 +37,8 @@ entrypoint: [
   /usr/local/lib/node_modules/@subql/query/bin/run,
   --name=evm-mandala,
   --playground,
-  --indexer=http://subql-node.test.bodhi.local:3000,
+  --indexer=http://subql-node-mandala.dev.bodhim.local:3000,
 ]
 
-tags:                         # Pass tags as key value pairs.
+tags:
   project: bodhi-mandala
-
-# You can override any of the values defined above by environment.
-environments:
-  test:
-    cpu: 256
-    memory: 512
-    count: 1
-    exec: true
-    deployment:            # The deployment strategy for the "test" environment.
-      rolling: 'recreate'  # Stops existing tasks before new ones are started for faster deployments.
