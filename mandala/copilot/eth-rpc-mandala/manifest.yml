@@ -12,12 +12,18 @@ http:
     command: ["CMD-SHELL", "exit 0"]
     interval: 300s
 
+# taskdef_overrides:
+#   - path: "ContainerDefinitions[0].PortMappings[-].ContainerPort"
+#     value: 3331
+#   - path: "ContainerDefinitions[0].PortMappings[1].Protocol"
+#     value: "http"
+
 deployment:
   rolling: 'recreate'
 
 cpu: 1024
 memory: 2048
-count: 3
+count: 1
 exec: true
 
 # ---------- env and variables ---------- #
