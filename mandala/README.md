@@ -1,19 +1,19 @@
-# bodhi-copilot
+# Bodhi Mandala
 ## init the project
-`copilot app init`. It creates a stack `bodhim-infrastructure-roles`, which Configure the AWSCloudFormationStackSetAdministrationRole to enable use of AWS CloudFormation StackSets. It has two `AWS::IAM::Role` roles:
+`copilot app init`. It creates a stack `bodhim-infrastructure-roles`, which Configure the AWSCloudFormationStackSetAdministrationRole to enable use of AWS CloudFormation StackSets.It has two `AWS::IAM::Role` roles:
 - AdministrationRole
 - ExecutionRole
 
-## init and deploy the dev env
+## deploy dev env
 `copilot env init --name dev`, it will create two stacks:
 -  `StackSet-bodhim-infrastructure-<hash>`: the Cross-regional resources to support the CodePipeline for a workspace. When we init an service, it will update it's ECR by adding a repo to store the docker image in the future.
 -  `bodhim-dev` stack: the CloudFormation environment bootstrap template with the necessary roles to create envs and workloads, with two `AWS::IAM::Role` roles:
    - CloudformationExecutionRole
    - EnvironmentManagerRole
 
-- `copilot env deploy --name dev` will add a lot of resources to `bodhim-dev`
+`copilot env deploy --name dev` will add a lot of resources to `bodhim-dev`
 
-## init and deploy the services
+## deploy services
 ### postgres
 first setup some secrets
 ```
@@ -25,35 +25,35 @@ aws ssm put-parameter \
 ```
 
 then init and deploy the service
-`copilot svc init -n postgres-mandala -t "Backend Service"` 
-`copilot svc deploy -n postgres-mandala -e dev`
+`copilot svc init -n postgres-mandala -t "Backend Service"`   
+`copilot svc deploy -n postgres-mandala -e dev`  
 
 ### subquery
-`copilot svc init -n subql-node-mandala -t "Backend Service"`
-`copilot svc deploy -n subql-node-mandala -e dev`
+`copilot svc init -n subql-node-mandala -t "Backend Service"`  
+`copilot svc deploy -n subql-node-mandala -e dev`  
 
-`copilot svc init -n subql-query-mandala -t "Load Balanced Web Service"`
-`copilot svc deploy -n subql-query-mandala -e dev`
+`copilot svc init -n subql-query-mandala -t "Load Balanced Web Service"`  
+`copilot svc deploy -n subql-query-mandala -e dev`  
 
 ### rpc adapter
-`copilot svc init -n eth-rpc-mandala -t "Load Balanced Web Service"`
-`copilot svc deploy -n eth-rpc-mandala -e dev`
+`copilot svc init -n eth-rpc-mandala -t "Load Balanced Web Service"`  
+`copilot svc deploy -n eth-rpc-mandala -e dev`  
 
-## config Load Balancer
+## config load balancer
 copilot doesn't natively support exposing two ports ([issue](https://github.com/aws/copilot-cli/issues/1783#issuecomment-1078511188)), so at this point we only have `/http` pointing to `:8545`. We need some extra setup to config load balancer to point `/ws` to `:3331`. 
 
 There are two ways to do it:
-- [with a all-in-one script](#script)
-- [with command line step by step](#command-line)
+- [a all-in-one script](#script)
+- [command line step by step](#command-line)
 
-#### script
+### script
 ```
 cd ../scripts/
 yarn
 APP=bodhim ENV=dev yarn config-ws-lb
 ```
 
-#### command line
+### command line
 create a target group
 ```
 aws ec2 describe-vpcs
