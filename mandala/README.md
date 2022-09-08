@@ -48,7 +48,7 @@ then init and deploy the service
 copilot doesn't natively support exposing two ports ([issue](https://github.com/aws/copilot-cli/issues/1783#issuecomment-1078511188)), so at this point we only have `/http` pointing to `:8545`. We need some extra setup to config load balancer to point `/ws` to `:3331`. 
 
 There are two ways to do it:
-- [a all-in-one script](#script)
+- [all-in-one script](#script)
 - [command line step by step](#command-line)
 
 ### script
