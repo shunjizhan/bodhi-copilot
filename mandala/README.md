@@ -1,11 +1,15 @@
 # Bodhi Mandala
 ## init the project
-`copilot app init`. It creates a stack `bodhim-infrastructure-roles`, which Configure the AWSCloudFormationStackSetAdministrationRole to enable use of AWS CloudFormation StackSets.It has two `AWS::IAM::Role` roles:
+`copilot app init`
+
+It creates a stack `bodhim-infrastructure-roles`, which Configure the AWSCloudFormationStackSetAdministrationRole to enable use of AWS CloudFormation StackSets.It has two `AWS::IAM::Role` roles:
 - AdministrationRole
 - ExecutionRole
 
 ## deploy dev env
-`copilot env init --name dev`, it will create two stacks:
+`copilot env init --name dev`
+
+It will create two stacks:
 -  `StackSet-bodhim-infrastructure-<hash>`: the Cross-regional resources to support the CodePipeline for a workspace. When we init an service, it will update it's ECR by adding a repo to store the docker image in the future.
 -  `bodhim-dev` stack: the CloudFormation environment bootstrap template with the necessary roles to create envs and workloads, with two `AWS::IAM::Role` roles:
    - CloudformationExecutionRole
@@ -25,6 +29,7 @@ aws ssm put-parameter \
 ```
 
 then init and deploy the service
+
 `copilot svc init -n postgres-mandala -t "Backend Service"`   
 `copilot svc deploy -n postgres-mandala -e dev`  
 
