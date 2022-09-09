@@ -106,5 +106,7 @@ aws elbv2 create-rule \
 
 ## TODO
 - enable https
+- how does staging promotion work?
 - diable health check
+- clean up prev targets in target group in each update
 - pipeline?

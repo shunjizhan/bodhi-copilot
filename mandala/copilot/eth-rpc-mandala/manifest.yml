@@ -12,25 +12,18 @@ http:
     command: ["CMD-SHELL", "exit 0"]
     interval: 300s
 
-# taskdef_overrides:
-#   - path: "ContainerDefinitions[0].PortMappings[-].ContainerPort"
-#     value: 3331
-#   - path: "ContainerDefinitions[0].PortMappings[1].Protocol"
-#     value: "http"
-
 deployment:
   rolling: 'recreate'
 
-cpu: 1024
-memory: 2048
-count: 1
+cpu: 2048
+memory: 4096
+count: 2
 exec: true
 
 # ---------- env and variables ---------- #
 variables:
   ENDPOINT_URL: wss://mandala-tc7-rpcnode.aca-dev.network/ws
   SUBQL_URL: http://subql-query-mandala.dev.bodhim.local:3001
-  # SUBQL_URL: https://api.subquery.network/sq/AcalaNetwork/evm-mandala
 
 tags:
   project: bodhi-mandala
