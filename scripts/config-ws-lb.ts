@@ -7,10 +7,12 @@ import {
   DescribeTargetHealthCommand,
   ElasticLoadBalancingV2Client,
   RegisterTargetsCommand,
+  DeregisterTargetsCommand,
 } from "@aws-sdk/client-elastic-load-balancing-v2";
 import { EC2Client, DescribeVpcsCommand } from "@aws-sdk/client-ec2";
 
 const region = 'ap-southeast-1';
+const HTTP_PORT = Number(process.env.WS_PORT ?? 8545);
 const WS_PORT = Number(process.env.WS_PORT ?? 3331);
 const ENV = process.env.env ?? 'dev';
 const APP = process.env.APP ?? 'bodhim';
@@ -36,7 +38,7 @@ const createTargetGroup = async (vpcId : string) => {
     Port: WS_PORT,
     Protocol: 'HTTP',
     TargetType: 'ip',
-    HealthCheckPort: '8545',
+    HealthCheckPort: String(HTTP_PORT),
     HealthCheckIntervalSeconds: 300,
     HealthyThresholdCount: 2,
   }));
@@ -57,26 +59,42 @@ const getLBArn = async (vpcId: string) => {
   return lb.LoadBalancerArn;
 };
 
-const getEthRpcIds = async (lbArn: string) => {
+const getEthRpcIds = async (lbArn: string, port: number) => {
   const res = await elbv2.send(new DescribeTargetGroupsCommand({
     LoadBalancerArn: lbArn,
   }));
-  const ethRpcTg = res.TargetGroups?.find(tg => tg.Port === 8545);
-  if (!ethRpcTg?.TargetGroupArn) throw new Error('❌ cannot find the target group for eth rpc adapter');
-  
+  const ethRpcTg = res.TargetGroups?.find(tg => tg.Port === port);
+  if (!ethRpcTg?.TargetGroupArn) throw new Error(`❌ cannot find the eth rpc target group for port ${port}`);
+
   const res2 = await elbv2.send(new DescribeTargetHealthCommand({
     TargetGroupArn: ethRpcTg.TargetGroupArn,
   }));
-  if (!res2.TargetHealthDescriptions?.length) throw new Error(`❌ cannot get eth rpc target group health: ${ethRpcTg.TargetGroupArn}`);
-  
+  if (!res2.TargetHealthDescriptions?.length) throw new Error(`❌ cannot get eth rpc target group data for port ${port} and tg: ${ethRpcTg.TargetGroupArn}`);
+
   const targetIds = res2.TargetHealthDescriptions.map(d => d.Target?.Id);
-  console.log(`🎉 found eth rpc ips: ${targetIds}`);
+  console.log(`🎉 found eth rpc ips for port ${port}: ${JSON.stringify(targetIds, null, 2)}`);
 
   return targetIds.filter(x => !!x) as string[];
 };
 
-const registerEthRpcIds = async (tgArn: string, ids: string[]) => {
-  const res = await elbv2.send(new RegisterTargetsCommand({
+const registerEthRpcIds = async (tgArn: string, ids: string[], legacyIds: string[]) => {
+  const id2Remove = legacyIds.filter(id => !ids.includes(id));
+
+  // remove legacy ids
+  if (id2Remove.length > 0) {
+    await elbv2.send(new DeregisterTargetsCommand({
+      TargetGroupArn: tgArn,
+      Targets: id2Remove.map(id => ({
+        Id: id,
+        Port: WS_PORT,
+      })),
+    }));
+
+  }
+  
+  console.log(`🎉 removed legacy targets ${JSON.stringify(id2Remove, null, 2)} for target group ${tgArn}`)
+
+  await elbv2.send(new RegisterTargetsCommand({
     TargetGroupArn: tgArn,
     Targets: ids.map(id => ({
       Id: id,
@@ -84,7 +102,7 @@ const registerEthRpcIds = async (tgArn: string, ids: string[]) => {
     })),
   }));
 
-  console.log(`🎉 registered targets ${ids} for target group ${tgArn}`,)
+  console.log(`🎉 registered targets ${JSON.stringify(ids, null, 2) } for target group ${tgArn}`)
 };
 
 const getListenerArn = async (lbArn: string) => {
@@ -122,8 +140,10 @@ const main = async () => {
   const vpcId = await getVpcId();
   const lbArn = await getLBArn(vpcId);
   const wsTgArn = await createTargetGroup(vpcId);
-  const ethRpcIds = await getEthRpcIds(lbArn);
-  await registerEthRpcIds(wsTgArn, ethRpcIds);
+  const ethRpcHttpIds = await getEthRpcIds(lbArn, HTTP_PORT);
+  const ethRpcWsIds = await getEthRpcIds(lbArn, WS_PORT);
+
+  await registerEthRpcIds(wsTgArn, ethRpcHttpIds, ethRpcWsIds);
 
   const listenerArn = await getListenerArn(lbArn);
   await createListenerRule(listenerArn, wsTgArn);
