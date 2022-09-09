@@ -28,20 +28,23 @@ aws ssm put-parameter \
 --tags Key=copilot-environment,Value=dev Key=copilot-application,Value=bodhim
 ```
 
-then init and deploy the service
+then init and deploy the service (this step is optional if you already have a DB running)
 
 `copilot svc init -n postgres-mandala -t "Backend Service"`   
 `copilot svc deploy -n postgres-mandala -e dev`  
 
 ### subquery
-`copilot svc init -n subql-node-mandala -t "Backend Service"`  
+`copilot svc init -n subql-node-mandala -t "Backend Service"` 
+change the corresponding variables in manifest, then:  
 `copilot svc deploy -n subql-node-mandala -e dev`  
 
 `copilot svc init -n subql-query-mandala -t "Load Balanced Web Service"`  
+change the corresponding variables in manifest, then:  
 `copilot svc deploy -n subql-query-mandala -e dev`  
 
 ### rpc adapter
 `copilot svc init -n eth-rpc-mandala -t "Load Balanced Web Service"`  
+change the corresponding variables in manifest, then:  
 `copilot svc deploy -n eth-rpc-mandala -e dev`  
 
 ## config load balancer

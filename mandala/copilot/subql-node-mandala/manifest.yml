@@ -18,11 +18,12 @@ deployment:
 variables:
   DB_USER: postgres
   DB_DATABASE: postgres
-  DB_HOST: postgres-mandala.dev.bodhim.local
+  DB_HOST: http://subql-evm.cluster-cspmstlhvanj.ap-southeast-1.rds.amazonaws.com/
+  DB_PASS: k9IuVwWNt4mbw3X5esk0       # TODO: save to ssm
   DB_PORT: 5432
 
-secrets:
-  DB_PASS: /bodhi/dev/POSTGRES_PASSWORD
+# secrets:
+#   DB_PASS: /bodhi/dev/POSTGRES_PASSWORD
 
 # there doesn't seem to be a way to only pass args (TODO: any way?)
 # so override the whole entry point
