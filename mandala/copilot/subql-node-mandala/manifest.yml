@@ -1,0 +1,43 @@
+name: subql-node-mandala
+type: Backend Service
+
+# ---------- configs ---------- #
+image:
+  build: indexer.Dockerfile
+  port: 3000
+
+cpu: 1024
+memory: 2048
+count: 1
+exec: true
+
+deployment:
+  rolling: 'recreate'       # Stops existing tasks before new ones are started for faster deployments.  TODO: can use for prod?
+
+# ---------- env and variables ---------- #
+variables:
+  DB_USER: postgres
+  DB_DATABASE: postgres
+  DB_HOST: http://subql-evm.cluster-cspmstlhvanj.ap-southeast-1.rds.amazonaws.com/
+  DB_PASS: k9IuVwWNt4mbw3X5esk0       # TODO: save to ssm
+  DB_PORT: 5432
+
+# secrets:
+#   DB_PASS: /bodhi/dev/POSTGRES_PASSWORD
+
+# there doesn't seem to be a way to only pass args (TODO: any way?)
+# so override the whole entry point
+entrypoint: [
+  "/sbin/tini",
+  "--",
+  "/usr/local/lib/node_modules/@subql/node/bin/run",
+  "-f=/app/project-mandala.yaml",
+  "--network-endpoint=wss://mandala-tc7-rpcnode.aca-dev.network/ws",
+  "--db-schema=evm-mandala",
+  "--log-level=debug",
+  "--batch-size=100",
+  "--unsafe",
+]
+
+tags:
+  project: bodhi-mandala

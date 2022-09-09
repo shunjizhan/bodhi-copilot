@@ -1,0 +1,22 @@
+name: postgres-mandala
+type: Backend Service
+
+# ---------- configs ---------- #
+image:
+  build: postgres.Dockerfile
+  port: 5432
+
+cpu: 1024
+memory: 2048
+count: 1
+exec: true
+
+# ---------- env and variables ---------- #
+variables:
+  POSTGRES_USER: postgres
+
+secrets:
+  POSTGRES_PASSWORD: /bodhi/dev/POSTGRES_PASSWORD
+
+tags:
+  project: bodhi-mandala

@@ -1,0 +1,29 @@
+name: eth-rpc-mandala
+type: Load Balanced Web Service
+
+# ---------- configs ---------- #
+image:
+  build: rpc.Dockerfile
+  port: 8545
+
+http:
+  path: 'http'
+  healthcheck:
+    command: ["CMD-SHELL", "exit 0"]
+    interval: 300s
+
+deployment:
+  rolling: 'recreate'
+
+cpu: 2048
+memory: 4096
+count: 2
+exec: true
+
+# ---------- env and variables ---------- #
+variables:
+  ENDPOINT_URL: wss://mandala-tc7-rpcnode.aca-dev.network/ws
+  SUBQL_URL: http://subql-query-mandala.dev.bodhim.local:3001
+
+tags:
+  project: bodhi-mandala

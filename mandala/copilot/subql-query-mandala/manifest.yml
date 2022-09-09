@@ -1,0 +1,44 @@
+name: subql-query-mandala
+type: Load Balanced Web Service
+
+# ---------- configs ---------- #
+image:
+  build: graphql.Dockerfile
+  port: 3001
+
+http:
+  path: '/'
+  healthcheck:
+    command: ["CMD-SHELL", "exit 0"]
+    interval: 300s
+
+cpu: 1024
+memory: 2048
+count: 1
+exec: true
+
+deployment:
+  rolling: 'recreate'       # Stops existing tasks before new ones are started for faster deployments.  TODO: can use for prod?
+
+# ---------- env and variables ---------- #
+variables:
+  DB_USER: postgres
+  DB_DATABASE: postgres
+  DB_HOST: postgres-mandala.dev.bodhim.local
+  DB_PORT: 5432
+  PORT: 3001
+
+secrets:
+  DB_PASS: /bodhi/dev/POSTGRES_PASSWORD
+
+entrypoint: [
+  /sbin/tini,
+  --,
+  /usr/local/lib/node_modules/@subql/query/bin/run,
+  --name=evm-mandala,
+  --playground,
+  --indexer=http://subql-node-mandala.dev.bodhim.local:3000,
+]
+
+tags:
+  project: bodhi-mandala
